@@ -7,7 +7,7 @@ import apikey  # Import the file where your API key is stored
 
 load_dotenv()
 
-st.title("Streamlit Chatbot Interface")
+st.title("Streamlit Chatbot")
 
 USER_AVATAR = "👤"
 BOT_AVATAR = "🤖"
