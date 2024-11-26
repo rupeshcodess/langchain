@@ -3,8 +3,9 @@ from dotenv import load_dotenv
 import os
 import shelve
 from groq import Groq
-import apikey  # Import the file where your API key is stored
+import apikey  # Assuming this contains your API key
 
+# Load environment variables
 load_dotenv()
 
 st.title("TalkBot")
@@ -13,9 +14,9 @@ USER_AVATAR = "👤"
 BOT_AVATAR = "🤖"
 
 # Initialize Groq client
-client = "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"
+client = Groq(api_key="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")
 
-# Ensure openai_model is initialized in session state
+# Ensure groq_model is initialized in session state
 if "groq_model" not in st.session_state:
     st.session_state["groq_model"] = "llama3-8b-8192"
 
@@ -41,28 +42,29 @@ with st.sidebar:
 
 # Display chat messages
 for message in st.session_state.messages:
-    avatar = USER_AVATAR if message["role"] == "user" else BOT_AVATAR
-    with st.chat_message(message["role"], avatar=avatar):
+    with st.chat_message(message["role"]):
         st.markdown(message["content"])
 
 # Main chat interface
 if prompt := st.chat_input("How can I help?"):
     st.session_state.messages.append({"role": "user", "content": prompt})
-    with st.chat_message("user", avatar=USER_AVATAR):
+    with st.chat_message("user"):
         st.markdown(prompt)
 
-    with st.chat_message("assistant", avatar=BOT_AVATAR):
+    with st.chat_message("assistant"):
         message_placeholder = st.empty()
         full_response = ""
-        chat_completion = client.chat.completions.create(
-            messages=st.session_state["messages"] + [{"role": "user", "content": prompt}],
+        chat_completion = client.completions.create(
             model=st.session_state["groq_model"],
+            messages=st.session_state["messages"] + [{"role": "user", "content": prompt}],
         )
         for response in chat_completion.choices:
             full_response += response.message.content
             message_placeholder.markdown(full_response + "|")
         message_placeholder.markdown(full_response)
+
     st.session_state.messages.append({"role": "assistant", "content": full_response})
 
 # Save chat history after each interaction
 save_chat_history(st.session_state.messages)
+
