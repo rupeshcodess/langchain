@@ -13,7 +13,7 @@ USER_AVATAR = "👤"
 BOT_AVATAR = "🤖"
 
 # Initialize Groq client
-client = Groq(api_key=apikey.GROQ_API_KEY)
+client = "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"
 
 # Ensure openai_model is initialized in session state
 if "groq_model" not in st.session_state:
