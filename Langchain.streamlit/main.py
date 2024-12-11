@@ -1,20 +1,17 @@
 import streamlit as st
-from dotenv import load_dotenv
-import os
-import shelve
 from groq import Groq
-import apikey  # Assuming this contains your API key
-
-# Load environment variables
-load_dotenv()
+import shelve
 
 st.title("TalkBot")
 
 USER_AVATAR = "👤"
 BOT_AVATAR = "🤖"
 
-# Initialize Groq client
-client = Groq(api_key="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")
+# Set your API key directly in the code
+api_key = "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"  # Replace this with your actual Groq API key
+
+# Initialize Groq client with the API key
+client = Groq(api_key=api_key)
 
 # Ensure groq_model is initialized in session state
 if "groq_model" not in st.session_state:
@@ -54,17 +51,34 @@ if prompt := st.chat_input("How can I help?"):
     with st.chat_message("assistant"):
         message_placeholder = st.empty()
         full_response = ""
-        chat_completion = client.completions.create(
+        
+        # Using Groq's Cloud API syntax for completions
+        chat_completion = client.chat.completions.create(
+            messages=[
+                # Optional system message
+                {
+                    "role": "system",
+                    "content": "You are a helpful assistant."
+                },
+                # User message
+                {
+                    "role": "user",
+                    "content": prompt,
+                }
+            ],
             model=st.session_state["groq_model"],
-            messages=st.session_state["messages"] + [{"role": "user", "content": prompt}],
+            temperature=0.5,
+            max_tokens=1024,
+            top_p=1,
+            stop=None,
+            stream=False,
         )
-        for response in chat_completion.choices:
-            full_response += response.message.content
-            message_placeholder.markdown(full_response + "|")
+        
+        # Assuming the response is structured as in the example
+        full_response = chat_completion.choices[0].message.content
         message_placeholder.markdown(full_response)
 
     st.session_state.messages.append({"role": "assistant", "content": full_response})
 
 # Save chat history after each interaction
 save_chat_history(st.session_state.messages)
-
